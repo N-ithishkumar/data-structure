@@ -1,0 +1,106 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Define a structure for a stack node
+struct StackNode {
+    char data;
+    struct StackNode* next;
+};
+
+// Function to create a new stack node
+struct StackNode* createNode(char data) {
+    struct StackNode* newNode = (struct StackNode*)malloc(sizeof(struct StackNode));
+    newNode->data = data;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to check if the stack is empty
+int isEmpty(struct StackNode* root) {
+    return (root == NULL);
+}
+
+// Function to push a character onto the stack
+void push(struct StackNode** root, char data) {
+    struct StackNode* newNode = createNode(data);
+    newNode->next = *root;
+    *root = newNode;
+}
+
+// Function to pop a character from the stack
+char pop(struct StackNode** root) {
+    if (isEmpty(*root)) {
+        printf("Stack underflow!\n");
+        return '\0';
+    }
+    struct StackNode* temp = *root;
+    *root = (*root)->next;
+    char popped = temp->data;
+    free(temp);
+    return popped;
+}
+
+// Function to return the top element of the stack without popping it
+char peek(struct StackNode* root) {
+    if (isEmpty(root)) {
+        return '\0';
+    }
+    return root->data;
+}
+
+// Function to check if a character is an operator (+, -, *, /, ^)
+int isOperator(char ch) {
+    return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^');
+}
+
+// Function to return the precedence of an operator
+int precedence(char ch) {
+    if (ch == '^') return 3;
+    if (ch == '*' || ch == '/') return 2;
+    if (ch == '+' || ch == '-') return 1;
+    return 0;
+}
+
+// Function to convert infix notation to postfix notation
+void infixToPostfix(char* infix) {
+    struct StackNode* stack = NULL;
+    int i, j = 0;
+
+    printf("Postfix Notation: ");
+    for (i = 0; i < strlen(infix); i++) {
+        char ch = infix[i];
+
+        if (isalnum(ch)) {
+            printf("%c", ch);
+        } else if (ch == '(') {
+            push(&stack, ch);
+        } else if (ch == ')') {
+            while (!isEmpty(stack) && peek(stack) != '(') {
+                printf("%c", pop(&stack));
+            }
+            pop(&stack); // Pop '(' from the stack
+        } else if (isOperator(ch)) {
+            while (!isEmpty(stack) && precedence(peek(stack)) >= precedence(ch)) {
+                printf("%c", pop(&stack));
+            }
+            push(&stack, ch);
+        }
+    }
+
+    while (!isEmpty(stack)) {
+        printf("%c", pop(&stack));
+    }
+    printf("\n");
+}
+
+int main() {
+    char infix[100];
+
+    printf("Enter an infix expression: ");
+    scanf("%s", infix);
+
+    infixToPostfix(infix);
+
+    return 0;
+}

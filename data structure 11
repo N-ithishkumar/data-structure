@@ -1,0 +1,69 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#define MAX_SIZE 100
+
+int stack[MAX_SIZE];
+int top = -1;
+
+void push(int value) {
+    if (top >= MAX_SIZE - 1) {
+        printf("Stack overflow.\n");
+        exit(1);
+    }
+    stack[++top] = value;
+}
+
+int pop() {
+    if (top == -1) {
+        printf("Stack underflow.\n");
+        exit(1);
+    }
+    return stack[top--];
+}
+
+int evaluatePostfix(char postfix[]) {
+    int i = 0, operand1, operand2, result;
+    
+    while (postfix[i] != '\0') {
+        if (isdigit(postfix[i])) {
+            push(postfix[i] - '0'); // Convert char digit to int
+        } else {
+            operand2 = pop();
+            operand1 = pop();
+
+            switch (postfix[i]) {
+                case '+':
+                    result = operand1 + operand2;
+                    break;
+                case '-':
+                    result = operand1 - operand2;
+                    break;
+                case '*':
+                    result = operand1 * operand2;
+                    break;
+                case '/':
+                    result = operand1 / operand2;
+                    break;
+                default:
+                    printf("Invalid operator.\n");
+                    exit(1);
+            }
+
+            push(result);
+        }
+        i++;
+    }
+    
+    return pop();
+}
+
+int main() {
+    char postfixExpression[] = "23*5+"; // Example postfix expression: 2 * 3 + 5
+
+    int result = evaluatePostfix(postfixExpression);
+    printf("Result: %d\n", result);
+
+    return 0;
+}
